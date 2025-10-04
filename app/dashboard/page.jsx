@@ -37,10 +37,53 @@ export default function Dashboard() {
 
       try {
         const token = await user.getIdToken();
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL+"/dashboard"}`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        const data = await res.json();
+        const base = process.env.NEXT_PUBLIC_API_BASE_URL || (typeof window !== 'undefined' ? window.location.origin : '');
+        const url = `${base.replace(/\/$/, '')}/dashboard`;
+        let data;
+        let res;
+        try {
+          res = await fetch(url, { 
+            headers: { 
+              Authorization: `Bearer ${token}`,
+              'Accept': 'application/json',
+              'ngrok-skip-browser-warning': 'true'
+            }
+          });
+        } catch (networkErr) {
+          console.error('Network error calling dashboard:', networkErr, 'URL:', url);
+          throw networkErr;
+        }
+        const ct = res.headers.get('content-type') || '';
+        if (!res.ok) {
+          // Try to parse JSON error, else read text
+            if (ct.includes('application/json')) {
+              try { data = await res.json(); } catch { data = { error: 'Bad JSON from server' }; }
+            } else {
+              const text = await res.text();
+              console.error('Non-JSON error response:', text.slice(0,300));
+              throw new Error(`Request failed ${res.status}`);
+            }
+        } else if (ct.includes('application/json')) {
+          try {
+            data = await res.json();
+          } catch (parseErr) {
+            console.error('JSON parse error. Raw response may be HTML.', parseErr);
+            throw parseErr;
+          }
+        } else {
+          const text = await res.text();
+          // Detect HTML error page scenario that caused Unexpected token '<'
+          if (/^<!DOCTYPE html>/i.test(text.trim())) {
+            console.error('Received HTML instead of JSON from', url, 'First 120 chars:', text.slice(0,120));
+            throw new Error('Server returned HTML instead of JSON. Check API base URL env var.');
+          }
+          console.error('Unexpected non-JSON content-type:', ct, 'Sample:', text.slice(0,120));
+          throw new Error('Unexpected response format');
+        }
+
+        if (!data || typeof data !== 'object') {
+          throw new Error('Invalid data shape from dashboard endpoint');
+        }
         const fetchedHits = data.hits || [];
 
         const mappedHits = fetchedHits.map((hit) => {

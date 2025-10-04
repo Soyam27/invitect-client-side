@@ -14,4 +14,8 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const provider = new GoogleAuthProvider();
 const db = getFirestore(app);
+
+const user = auth.currentUser;
+  console.log(user); // This is <YOUR_FIREBASE_TOKEN>
+
 export { auth, provider,app,db };
