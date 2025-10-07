@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 import { getAuth, onAuthStateChanged, signOut } from "firebase/auth";
 import { app } from "../firebase/firebaseConfig"; // adjust path to your firebase config
+import Image from "next/image";
 
 export default function FloatingGlassMorphNavbar({ openLogin }) {
   const [open, setOpen] = useState(false);
@@ -45,9 +46,21 @@ export default function FloatingGlassMorphNavbar({ openLogin }) {
       <div className="relative w-[95vw] max-w-7xl mx-auto rounded-2xl p-2 bg-white/5 border border-white/20 backdrop-blur-xl">
         <nav className="flex items-center gap-6">
           {/* Logo */}
-          <Link href="/" className="flex items-center gap-2 text-lg text-white font-bold">
-            Invitect
-          </Link>
+          <Link
+      href="/"
+      className="flex items-center gap-2 text-lg font-bold text-white transition-transform duration-300 hover:scale-105"
+    >
+      <Image
+        src="/stalking.svg"
+        alt="Logo"
+        width={32}
+        height={32}
+        className="transition-transform duration-300 hover:rotate-6"
+      />
+      <h1 className="font-bold text-lg text-white transition-colors duration-300 hover:text-blue-400">
+        INVITECT
+      </h1>
+    </Link>
 
           {/* Desktop Links - Optimized with prefetch */}
           <div className="hidden md:flex gap-4 ml-auto items-center">
