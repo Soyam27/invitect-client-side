@@ -57,7 +57,7 @@ export default function FloatingGlassMorphNavbar({ openLogin }) {
         height={32}
         className="transition-transform duration-300 hover:rotate-6"
       />
-      <h1 className="font-bold text-lg text-white transition-colors duration-300 hover:text-blue-400">
+      <h1 className="font-bold text-lg text-white transition-colors duration-300 hover:text-red-400">
         INVITECT
       </h1>
     </Link>
